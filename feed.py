@@ -6,6 +6,7 @@ from itertools import chain
 from typing import List
 
 import aiohttp
+from feedgen.feed import FeedGenerator
 from starlette.applications import Starlette
 from starlette.responses import PlainTextResponse
 from starlette.routing import Route
@@ -88,6 +89,28 @@ async def fetch_comments_page(page: int, lock: Semaphore = None) -> List[Comment
                 return list(map(parse_comment, comments))
 
 
+def generate_atom_feed(comments: List[Comment]) -> str:
+    fg = FeedGenerator()
+    fg.id('http://journal.tinkoff.ru')
+    fg.logo('https://sun9-20.userapi.com/c846419/v846419100/1e1b58/pxgU8F6HViA.jpg?ava=1')
+    fg.title('Т_Ж комменты')
+    fg.link(href='http://journal.tinkoff.ru', rel='alternate')
+    fg.link(href='http://t_j.esemi.ru/feed.atom', rel='self')
+    fg.language('ru')
+    fg.updated(comments[0].comment_date)
+
+    for entity in comments:
+        fe = fg.add_entry(order='append')
+        fe.author(author={'name': f'{entity.user_name} [{entity.user_grade}]', 'uri': entity.user_link})
+        fe.link(href=entity.comment_link)
+        fe.title(entity.comment_content[:60])
+        fe.content(f"{entity.article_title[:100]}:\n{entity.comment_content}")
+        fe.updated(entity.comment_date)
+        fe.id(entity.comment_link)
+
+    return fg.atom_str(pretty=True)
+
+
 async def rss_feed(request):
     logging.info('request fetch %d pages of comments', COMMENTS_PAGES_LIMIT)
 
@@ -99,10 +122,11 @@ async def rss_feed(request):
         await asyncio.gather(*comments_tasks)))
     logging.info('fetch %d comments', len(all_comments))
 
-    # todo prepare rss feed
-    # print(all_comments)
+    # prepare rss feed
+    feed_content = generate_atom_feed(all_comments)
+    logging.info('generate atom feed %d length', len(feed_content))
 
-    return PlainTextResponse('todo.rss here')
+    return PlainTextResponse(feed_content, media_type='application/atom+xml')
 
 
 app = Starlette(debug=False, routes=[

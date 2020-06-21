@@ -1,7 +1,7 @@
 import pytest
 from starlette.testclient import TestClient
 
-from feed import app, parse_comment, Comment, fetch_comments_page
+from feed import app, parse_comment, Comment, fetch_comments_page, generate_atom_feed
 
 
 def test_rss_feed_endpoint():
@@ -41,3 +41,12 @@ def test_comment_parser():
     assert result.user_grade == 'бодрый комментатор, нейтрал'
     assert result.user_name == 'Елизавета Кружкова'
     assert result.user_link == 'https://journal.tinkoff.ru/user16297/'
+
+
+def test_generate_atom_feed():
+    comment = Comment(user_id=1, user_grade='болтушка, хохотушка', user_name='Авторское имя', comment_id=2,
+                      comment_content='Спасибо за дневник! Теперь я снова уверен в себе и не переживаю что иногда трачу деньги на бесполезную фигню! Оказалось - не трачу.',
+                      comment_date='2020-06-20T18:41:34.889094+03:00', article_path='/diary-ekonomist-dekret-reutov/',
+                      article_title='Как живет экономист в Подмосковье с декретными 25 000 ₽')
+    result = generate_atom_feed([comment])
+    assert isinstance(result, bytes)
