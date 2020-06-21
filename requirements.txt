@@ -1,0 +1,7 @@
+starlette
+uvicorn
+aiohttp[speedups]
+pytest
+requests
+typed_json_dataclass
+feedgen
