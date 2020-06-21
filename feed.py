@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import operator
 from asyncio import Semaphore
 from dataclasses import dataclass
 from itertools import chain
@@ -19,7 +20,7 @@ API_ENDPOINT_COMMENTS = '/api/public/v2.4/comments'
 API_COMMENTS_LIMIT = 100
 MAX_CONN = 5
 CONN_TIMEOUT = 15
-COMMENTS_PAGES_LIMIT = 2
+COMMENTS_PAGES_LIMIT = 10
 
 
 @dataclass
@@ -45,15 +46,18 @@ class Comment(TypedJsonMixin):
 
 
 def parse_comment(comment: dict) -> Comment:
+    def unicode_normalize(v: str) -> str:
+        v = v.replace(u"\xa0", u" ")
+        return v
     user = comment.get('user', {})
     return Comment(
         user_id=int(user.get('id')),
-        user_name=user.get('name'),
-        user_grade=user.get('grade'),
+        user_name=unicode_normalize(user.get('name')),
+        user_grade=unicode_normalize(user.get('grade')),
         comment_id=int(comment.get('id')),
-        comment_content=comment.get('text'),
+        comment_content=unicode_normalize(comment.get('text')),
         comment_date=comment.get('date_added'),
-        article_title=comment.get('article_title'),
+        article_title=unicode_normalize(comment.get('article_title')),
         article_path=comment.get('article_path'),
     )
 
@@ -103,8 +107,8 @@ def generate_atom_feed(comments: List[Comment]) -> str:
         fe = fg.add_entry(order='append')
         fe.author(author={'name': f'{entity.user_name} [{entity.user_grade}]', 'uri': entity.user_link})
         fe.link(href=entity.comment_link)
-        fe.title(entity.comment_content[:60])
-        fe.content(f"{entity.article_title[:100]}:\n{entity.comment_content}")
+        fe.title(f'{entity.comment_content[:60]}...')
+        fe.content(f"{entity.article_title[:100]}...':\n{entity.comment_content}")
         fe.updated(entity.comment_date)
         fe.id(entity.comment_link)
 
@@ -117,16 +121,17 @@ async def rss_feed(request):
     # fetch last 1000comments
     max_conn_lock = Semaphore(MAX_CONN)
     comments_tasks = [asyncio.create_task(fetch_comments_page(i, max_conn_lock)) for i in
-                      range(1, COMMENTS_PAGES_LIMIT + 1)]
+                      range(COMMENTS_PAGES_LIMIT, 0, -1)]
     all_comments = list(chain.from_iterable(
         await asyncio.gather(*comments_tasks)))
+    all_comments.sort(key=operator.attrgetter('comment_id'), reverse=True)
     logging.info('fetch %d comments', len(all_comments))
 
     # prepare rss feed
     feed_content = generate_atom_feed(all_comments)
     logging.info('generate atom feed %d length', len(feed_content))
 
-    return PlainTextResponse(feed_content, media_type='application/atom+xml')
+    return PlainTextResponse(feed_content, media_type='application/atom+xml; charset=utf-8')
 
 
 app = Starlette(debug=False, routes=[
