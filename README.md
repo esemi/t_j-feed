@@ -1,11 +1,11 @@
 # t_j-feed
-RSS потом комментов на Т_Ж
+RSS поток комментов на Т_Ж
 ---
 
-Для тех, кому надоело искать новые комменты в старых статьях (: 
+Для тех, кому надоело искать новые комменты в старых статьях journal.tinkoff.ru (: 
 
 ## Usage
-
+[add atom feed](http://t_j.esemi.ru)
 
 
 ### Local run
@@ -13,6 +13,7 @@ RSS потом комментов на Т_Ж
 ```shell
 $ virtualenv -p python3.8 venv
 $ source venv/bin/activate
-$ pip install -r requirements.txt
+$ pip install -r requirements/dev.txt
+$ pytest --cov=feed tests.py
 $ uvicorn feed:app
 ```

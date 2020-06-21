@@ -7,11 +7,9 @@ from typing import List
 
 import aiohttp
 from starlette.applications import Starlette
-from starlette.responses import JSONResponse, PlainTextResponse
+from starlette.responses import PlainTextResponse
 from starlette.routing import Route
-from starlette.testclient import TestClient
 from typed_json_dataclass import TypedJsonMixin
-
 
 HOST = 'https://journal.tinkoff.ru'
 API_HOST = 'https://social.journal.tinkoff.ru'
@@ -20,7 +18,7 @@ API_ENDPOINT_COMMENTS = '/api/public/v2.4/comments'
 API_COMMENTS_LIMIT = 100
 MAX_CONN = 5
 CONN_TIMEOUT = 15
-COMMENTS_PAGES_LIMIT = 10
+COMMENTS_PAGES_LIMIT = 2
 
 
 @dataclass
@@ -59,18 +57,21 @@ def parse_comment(comment: dict) -> Comment:
     )
 
 
-async def fetch_comments_page(lock: Semaphore, page: int) -> List[Comment]:
+async def fetch_comments_page(page: int, lock: Semaphore = None) -> List[Comment]:
     """
     Fetch one page of comments and return structured comments list
 
     """
+
+    if not lock:
+        lock = Semaphore(9999)
 
     url = f'{API_HOST}{API_ENDPOINT_COMMENTS}'
     params = {
         'include': 'article_path,article_title,user',
         'order_by': 'date_added',
         'order_direction': 'desc',
-        'offset': API_COMMENTS_LIMIT * page,
+        'offset': API_COMMENTS_LIMIT * (page - 1),
         'limit': API_COMMENTS_LIMIT,
         'unsafe': 'true'
     }
@@ -81,6 +82,7 @@ async def fetch_comments_page(lock: Semaphore, page: int) -> List[Comment]:
         async with aiohttp.ClientSession(timeout=timeout, connector=conn) as session:
             async with session.get(url, params=params) as resp:
                 logging.info('fetch %d page with code=%s', page, resp.status)
+                logging.info(f'{params=}')
                 resp.raise_for_status()
                 comments = (await resp.json())['data']
                 return list(map(parse_comment, comments))
@@ -91,7 +93,8 @@ async def rss_feed(request):
 
     # fetch last 1000comments
     max_conn_lock = Semaphore(MAX_CONN)
-    comments_tasks = [asyncio.create_task(fetch_comments_page(max_conn_lock, i)) for i in range(COMMENTS_PAGES_LIMIT)]
+    comments_tasks = [asyncio.create_task(fetch_comments_page(i, max_conn_lock)) for i in
+                      range(1, COMMENTS_PAGES_LIMIT + 1)]
     all_comments = list(chain.from_iterable(
         await asyncio.gather(*comments_tasks)))
     logging.info('fetch %d comments', len(all_comments))
@@ -99,7 +102,7 @@ async def rss_feed(request):
     # todo prepare rss feed
     # print(all_comments)
 
-    return PlainTextResponse({'comments': [i.to_json() for i in all_comments]})
+    return PlainTextResponse('todo.rss here')
 
 
 app = Starlette(debug=False, routes=[

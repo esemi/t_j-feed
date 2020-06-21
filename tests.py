@@ -1,12 +1,21 @@
+import pytest
 from starlette.testclient import TestClient
 
-from feed import app, parse_comment, Comment
+from feed import app, parse_comment, Comment, fetch_comments_page
 
 
 def test_rss_feed_endpoint():
     client = TestClient(app)
     response = client.get('/')
     assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_fetch_comments_page():
+    result = await fetch_comments_page(1)
+    assert len(result) == 100
+    assert result[0].comment_id > result[1].comment_id
+    assert all(map(lambda x: isinstance(x, Comment), result))
 
 
 def test_comment_parser():
