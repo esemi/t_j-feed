@@ -107,8 +107,8 @@ def generate_atom_feed(comments: List[Comment]) -> str:
         fe = fg.add_entry(order='append')
         fe.author(author={'name': f'{entity.user_name} [{entity.user_grade}]', 'uri': entity.user_link})
         fe.link(href=entity.comment_link)
-        fe.title(f'{entity.comment_content[:60]}...')
-        fe.content(f"{entity.article_title[:100]}...':\n{entity.comment_content}")
+        fe.title(f'{entity.article_title[:100]}...')
+        fe.content(entity.comment_content)
         fe.updated(entity.comment_date)
         fe.id(entity.comment_link)
 
@@ -135,7 +135,7 @@ async def rss_feed(request):
 
 logger = logging.getLogger()
 app_log = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s %(process)s %(request_id)s %(levelname)s %(name)s %(message)s')
+formatter = logging.Formatter('%(asctime)s %(process)s %(levelname)s %(name)s %(message)s')
 app_log.setFormatter(formatter)
 logger.handlers = []
 logger.addHandler(app_log)
