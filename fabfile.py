@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from shutil import copytree
+from shutil import copytree, copy
 
 from fabric.api import cd, run, local, lcd, put
 from fabric.contrib.files import exists
@@ -11,7 +11,8 @@ SERVICE_NAME = 'tinkoff'
 
 BUILD_PATH = 'build'
 BUILD_FILENAME = 'build.tar.gz'
-BUILD_FOLDERS = ['feed.py', 'requirements', 'etc']
+BUILD_FOLDERS = ['requirements']
+BUILD_FILES = ['feed.py']
 
 APP_PATH = 'current'
 DEPLOY_PATH = 'deploy'
@@ -48,6 +49,8 @@ def deployment():
     os.mkdir(BUILD_PATH)
     for folder in BUILD_FOLDERS:
         copytree(folder, os.path.join(BUILD_PATH, folder))
+    for filename in BUILD_FILES:
+        copy(filename, os.path.join(BUILD_PATH, filename))
     with lcd(BUILD_PATH):
         local(f'tar -czf ../{BUILD_FILENAME} .')
 

@@ -99,7 +99,7 @@ def generate_atom_feed(comments: List[Comment]) -> str:
     fg.logo('https://sun9-20.userapi.com/c846419/v846419100/1e1b58/pxgU8F6HViA.jpg?ava=1')
     fg.title('Т_Ж комменты')
     fg.link(href='http://journal.tinkoff.ru', rel='alternate')
-    fg.link(href='http://t_j.esemi.ru/feed.atom', rel='self')
+    fg.link(href='http://tj.esemi.ru/feed.atom', rel='self')
     fg.language('ru')
     fg.updated(comments[0].comment_date)
 

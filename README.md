@@ -1,11 +1,11 @@
-# t_j-feed
+# tj-feed
 RSS поток комментов на Т_Ж
 ---
 
 Для тех, кому надоело искать новые комменты в старых статьях journal.tinkoff.ru (: 
 
 ## Usage
-[add atom feed](http://t_j.esemi.ru)
+[add atom feed](http://tj.esemi.ru)
 
 
 ### Local run
