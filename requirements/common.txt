@@ -1,5 +1,6 @@
 starlette
 uvicorn
+gunicorn
 aiohttp[speedups]
 requests
 typed_json_dataclass
