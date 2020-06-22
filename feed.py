@@ -133,6 +133,13 @@ async def rss_feed(request):
 
     return PlainTextResponse(feed_content, media_type='application/atom+xml; charset=utf-8')
 
+logger = logging.getLogger()
+app_log = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s %(process)s %(request_id)s %(levelname)s %(name)s %(message)s')
+app_log.setFormatter(formatter)
+logger.handlers = []
+logger.addHandler(app_log)
+logger.setLevel(logging.INFO)
 
 app = Starlette(debug=False, routes=[
     Route('/', rss_feed, methods=["GET"]),
