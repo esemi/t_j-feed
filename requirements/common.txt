@@ -5,3 +5,4 @@ aiohttp[speedups]
 requests
 typed_json_dataclass
 feedgen
+jinja2

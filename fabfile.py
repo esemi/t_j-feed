@@ -11,7 +11,7 @@ SERVICE_NAME = 'tinkoff'
 
 BUILD_PATH = 'build'
 BUILD_FILENAME = 'build.tar.gz'
-BUILD_FOLDERS = ['requirements', 'etc']
+BUILD_FOLDERS = ['requirements', 'etc', 'templates']
 BUILD_FILES = ['feed.py']
 
 APP_PATH = 'current'
