@@ -53,7 +53,10 @@ class Comment(TypedJsonMixin):
 
 def parse_comment(comment: dict) -> Comment:
     def unicode_normalize(v: str) -> str:
-        v = v.replace(u"\xa0", u" ")
+        try:
+            v = v.replace(u"\xa0", u" ")
+        except AttributeError:
+            return ''
         return v
     user = comment.get('user', {})
     if not user.get('image'):

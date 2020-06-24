@@ -35,7 +35,7 @@ def test_comment_parser():
     assert result.comment_content == 'рандомный текст'
     assert result.article_path == '/news/avtokredit-so-skidkoi-june-2020/'
     assert result.comment_link == 'https://journal.tinkoff.ru/news/avtokredit-so-skidkoi-june-2020/#c197577'
-    assert result.article_title == 'Льготные автокредиты: теперь для\xa0семей с\xa0одним ребенком и\xa0на\xa0машины'
+    assert result.article_title == 'Льготные автокредиты: теперь для семей с одним ребенком и на машины'
     assert result.comment_id == 197577
     assert result.user_id == 16297
     assert result.user_grade == 'бодрый комментатор, нейтрал'
@@ -44,7 +44,8 @@ def test_comment_parser():
 
 
 def test_generate_atom_feed():
-    comment = Comment(user_id=1, user_grade='болтушка, хохотушка', user_name='Авторское имя', comment_id=2,
+    comment = Comment(user_id=1, user_grade='болтушка, хохотушка', user_name='Авторское имя', user_image=None,
+                      comment_id=2,
                       comment_content='Спасибо за дневник! Теперь я снова уверен в себе и не переживаю что иногда трачу деньги на бесполезную фигню! Оказалось - не трачу.',
                       comment_date='2020-06-20T18:41:34.889094+03:00', article_path='/diary-ekonomist-dekret-reutov/',
                       article_title='Как живет экономист в Подмосковье с декретными 25 000 ₽')
