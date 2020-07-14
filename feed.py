@@ -9,7 +9,7 @@ from typing import List
 import aiohttp
 from feedgen.feed import FeedGenerator
 from starlette.applications import Starlette
-from starlette.responses import PlainTextResponse, HTMLResponse
+from starlette.responses import PlainTextResponse
 from starlette.routing import Route
 from starlette.templating import Jinja2Templates
 from typed_json_dataclass import TypedJsonMixin
@@ -22,8 +22,8 @@ DEFAULT_AVATAR = 'https://static2.tinkoffjournal.ru/mercury-front/fbfb8fb7b8ce70
 API_COMMENTS_LIMIT = 100
 MAX_CONN = 5
 CONN_TIMEOUT = 15
-COMMENTS_PAGES_LIMIT = 10
-
+RSS_PAGES_LIMIT = 50
+HTML_PAGES_LIMIT = 5
 
 templates = Jinja2Templates(directory='templates')
 
@@ -58,6 +58,7 @@ def parse_comment(comment: dict) -> Comment:
         except AttributeError:
             return ''
         return v
+
     user = comment.get('user', {})
     if not user.get('image'):
         logging.info('empty user found %s', user)
@@ -141,7 +142,7 @@ async def fetch_comments(pages_count: int) -> List[Comment]:
 
 async def html_feed(request):
     logging.info('html feed request')
-    all_comments = await fetch_comments(1)
+    all_comments = await fetch_comments(HTML_PAGES_LIMIT)
 
     return templates.TemplateResponse('index.html', {'request': request, 'comments': all_comments})
 
@@ -150,13 +151,14 @@ async def rss_feed(request):
     logging.info('rss feed request')
 
     # fetch last 1000 comments for feed
-    all_comments = await fetch_comments(10)
+    all_comments = await fetch_comments(RSS_PAGES_LIMIT)
 
     # prepare rss feed
     feed_content = generate_atom_feed(all_comments)
     logging.info('generate atom feed %d length', len(feed_content))
 
     return PlainTextResponse(feed_content, media_type='application/atom+xml; charset=utf-8')
+
 
 logger = logging.getLogger()
 app_log = logging.StreamHandler()
