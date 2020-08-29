@@ -4,9 +4,15 @@ from starlette.testclient import TestClient
 from feed import app, parse_comment, Comment, fetch_comments_page, generate_atom_feed
 
 
-def test_rss_feed_endpoint():
+def test_html_feed_endpoint():
     client = TestClient(app)
     response = client.get('/')
+    assert response.status_code == 200
+
+
+def test_rss_feed_endpoint():
+    client = TestClient(app)
+    response = client.get('/feed.rss')
     assert response.status_code == 200
 
 
@@ -38,14 +44,13 @@ def test_comment_parser():
     assert result.article_title == 'Льготные автокредиты: теперь для семей с одним ребенком и на машины'
     assert result.comment_id == 197577
     assert result.user_id == 16297
-    assert result.user_grade == 'бодрый комментатор, нейтрал'
     assert result.user_name == 'Елизавета Кружкова'
+    assert result.user_karma == 15
     assert result.user_link == 'https://journal.tinkoff.ru/user16297/'
 
 
 def test_generate_atom_feed():
-    comment = Comment(user_id=1, user_grade='болтушка, хохотушка', user_name='Авторское имя', user_image=None,
-                      comment_id=2,
+    comment = Comment(user_id=1, user_name='Авторское имя', user_karma=100500, comment_id=2, user_image=None,
                       comment_content='Спасибо за дневник! Теперь я снова уверен в себе и не переживаю что иногда трачу деньги на бесполезную фигню! Оказалось - не трачу.',
                       comment_date='2020-06-20T18:41:34.889094+03:00', article_path='/diary-ekonomist-dekret-reutov/',
                       article_title='Как живет экономист в Подмосковье с декретными 25 000 ₽')

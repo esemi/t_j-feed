@@ -1,10 +1,12 @@
 import asyncio
 import logging
 import operator
+import re
+import unicodedata
 from asyncio import Semaphore
 from dataclasses import dataclass
 from itertools import chain
-from typing import List
+from typing import List, Optional
 
 import aiohttp
 from feedgen.feed import FeedGenerator
@@ -32,8 +34,8 @@ templates = Jinja2Templates(directory='templates')
 class Comment(TypedJsonMixin):
     user_id: int
     user_name: str
-    user_grade: str
-    user_image: str
+    user_karma: int
+    user_image: Optional[str]
 
     comment_id: int
     comment_content: str
@@ -52,24 +54,24 @@ class Comment(TypedJsonMixin):
 
 
 def parse_comment(comment: dict) -> Comment:
+    def remove_control_characters(s):
+        return "".join(ch for ch in s if unicodedata.category(ch)[0] != "C")
+
     def unicode_normalize(v: str) -> str:
         try:
             v = v.replace(u"\xa0", u" ")
         except AttributeError:
             return ''
-        return v
+        return remove_control_characters(v)
 
-    user = comment.get('user', {})
-    if not user.get('image'):
-        logging.info('empty user found %s', user)
-
+    user: dict = comment.get('user', {})
     return Comment(
         user_id=int(user.get('id')),
         user_name=unicode_normalize(user.get('name')),
-        user_grade=unicode_normalize(user.get('grade')),
+        user_karma=int(user.get('karma', 0)),
         user_image=user.get('image') if user.get('image') else DEFAULT_AVATAR,
         comment_id=int(comment.get('id')),
-        comment_content=comment.get('text'),
+        comment_content=unicode_normalize(comment.get('text')),
         comment_date=comment.get('date_added'),
         article_title=unicode_normalize(comment.get('article_title')),
         article_path=comment.get('article_path'),
@@ -119,7 +121,7 @@ def generate_atom_feed(comments: List[Comment]) -> str:
 
     for entity in comments:
         fe = fg.add_entry(order='append')
-        fe.author(author={'name': f'{entity.user_name} [{entity.user_grade}]', 'uri': entity.user_link})
+        fe.author(author={'name': f'{entity.user_name} [{entity.user_karma}]', 'uri': entity.user_link})
         fe.link(href=entity.comment_link)
         fe.title(f'{entity.article_title[:100]}...')
         fe.content(entity.comment_content)
