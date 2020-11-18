@@ -22,9 +22,9 @@ API_ENDPOINT_COMMENTS = '/api/public/v2.4/comments'
 DEFAULT_AVATAR = 'https://static2.tinkoffjournal.ru/mercury-front/fbfb8fb7b8ce70bf9516d9028e231419853c5444/face-08.982a.png'
 
 API_COMMENTS_LIMIT = 100
-MAX_CONN = 5
-CONN_TIMEOUT = 15
-RSS_PAGES_LIMIT = 50
+MAX_CONN = 4
+CONN_TIMEOUT = 20
+RSS_PAGES_LIMIT = 40
 HTML_PAGES_LIMIT = 5
 
 templates = Jinja2Templates(directory='templates')

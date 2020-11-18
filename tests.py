@@ -1,7 +1,7 @@
 import pytest
 from starlette.testclient import TestClient
 
-from feed import app, parse_comment, Comment, fetch_comments_page, generate_atom_feed
+from feed import app, parse_comment, Comment, fetch_comments_page, generate_atom_feed, API_COMMENTS_LIMIT
 
 
 def test_html_feed_endpoint():
@@ -19,7 +19,7 @@ def test_rss_feed_endpoint():
 @pytest.mark.asyncio
 async def test_fetch_comments_page():
     result = await fetch_comments_page(1)
-    assert len(result) == 100
+    assert len(result) == API_COMMENTS_LIMIT
     assert result[0].comment_id > result[1].comment_id
     assert all(map(lambda x: isinstance(x, Comment), result))
 
