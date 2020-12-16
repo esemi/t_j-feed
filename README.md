@@ -11,7 +11,7 @@ RSS поток комментов на Т_Ж
 ### Local run
 
 ```shell
-$ virtualenv -p python3.8 venv
+$ python3.9 -m venv venv
 $ source venv/bin/activate
 $ pip install -r requirements/dev.txt
 $ pytest --cov=feed tests.py

@@ -22,9 +22,9 @@ API_ENDPOINT_COMMENTS = '/api/public/v2.4/comments'
 DEFAULT_AVATAR = 'https://static2.tinkoffjournal.ru/mercury-front/fbfb8fb7b8ce70bf9516d9028e231419853c5444/face-08.982a.png'
 
 API_COMMENTS_LIMIT = 100
-MAX_CONN = 4
+MAX_CONN = 1
 CONN_TIMEOUT = 20
-RSS_PAGES_LIMIT = 40
+RSS_PAGES_LIMIT = 20
 HTML_PAGES_LIMIT = 5
 
 templates = Jinja2Templates(directory='templates')
@@ -64,7 +64,7 @@ def parse_comment(comment: dict) -> Comment:
             return ''
         return remove_control_characters(v)
 
-    user: dict = comment.get('user', {})
+    user: dict = comment.get('author', {})
     return Comment(
         user_id=int(user.get('id')),
         user_name=unicode_normalize(user.get('name')),
@@ -105,8 +105,8 @@ async def fetch_comments_page(page: int, lock: Semaphore = None) -> List[Comment
                 logging.info('fetch %d page with code=%s', page, resp.status)
                 logging.info(f'{params=}')
                 resp.raise_for_status()
-                comments = (await resp.json())['data']
-                return list(map(parse_comment, comments))
+                raw_response = await resp.json()
+                return list(map(parse_comment, raw_response))
 
 
 def generate_atom_feed(comments: List[Comment]) -> str:
