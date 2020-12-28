@@ -7,3 +7,4 @@ typed_json_dataclass
 feedgen
 jinja2
 aioredis
+aiofiles

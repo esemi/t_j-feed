@@ -20,10 +20,10 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        pip install flake8
-        flake8 feed.py --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        pip install -r requirements/dev.txt
+        flake8 app --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Unittests
       run: |
-        pip install pytest pytest-asyncio
-        pytest tests.py
+        pip install -r requirements/dev.txt
+        pytest --cov=app tests

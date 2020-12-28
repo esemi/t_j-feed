@@ -14,6 +14,7 @@ logger.handlers = []
 logger.addHandler(app_log)
 logger.setLevel(logging.INFO)
 
+
 webapp = Starlette(debug=False, routes=[
     Route('/', last_comments, methods=["GET"]),
 ])

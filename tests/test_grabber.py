@@ -7,7 +7,7 @@ def test_comment_parser():
     source = {"id": 265962, "parent_id": None, "date_added": "2020-10-15T11:22:08.210391+03:00", "is_edited": False, "level": 0,
               "text": "рандомный текст",
               "author": {"id": 46794, "name": "Мария Илюхина", "badge": None, "participation": [], "image": "https://sun9--w0&ava=1", "ban": None},
-              "rating": {"likes": 1, "dislikes": 0, "user_vote": 0}, "status": "visible", "article_path": "/diary-businessman-podmoskovie-920k/",
+              "rating": {"likes": 1, "dislikes": 17, "user_vote": 0}, "status": "visible", "article_path": "/diary-businessman-podmoskovie-920k/",
               "article_title": "Как живет предприниматель в Подмосковье с доходом 920 000 ₽", "ban": None, "image": None}
 
     result = parse_comment(source)
@@ -16,6 +16,7 @@ def test_comment_parser():
     assert result.comment_date == '2020-10-15T11:22:08.210391+03:00'
     assert result.comment_content == 'рандомный текст'
     assert result.comment_id == 265962
+    assert result.comment_rating == 1-17
     assert result.comment_link == 'https://journal.tinkoff.ru/diary-businessman-podmoskovie-920k/#c265962'
 
     assert result.article_path == '/diary-businessman-podmoskovie-920k/'
