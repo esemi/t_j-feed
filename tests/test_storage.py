@@ -2,25 +2,13 @@ import random
 
 import pytest
 
-from app.storage import set_max_offset, get_max_offset
-
-
-class MockStorage:
-    def __init__(self):
-        self._data = {}
-
-    async def set(self, key, value):
-        self._data[key] = value
-
-    async def get(self, key):
-        return self._data.get(key)
+from app.storage import create_conn, set_max_offset, get_max_offset
 
 
 @pytest.mark.asyncio
-async def test_max_offset(mocker):
+async def test_max_offset():
     value = random.randint(1, 100500)
-
-    mocker.patch('app.storage._REDIS_POOL', MockStorage())
+    await create_conn()
 
     await set_max_offset(value)
 
