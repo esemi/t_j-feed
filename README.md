@@ -14,7 +14,7 @@
 $ python3.8 -m venv venv
 $ source venv/bin/activate
 $ pip install -r requirements/dev.txt
-$ pytest --cov=app tests
-$ flake8 app
-$ uvicorn app:webapp
+$ pytest --cov=tj_feed tests
+$ flake8 tj_feed
+$ uvicorn tj_feed.app:webapp
 ```

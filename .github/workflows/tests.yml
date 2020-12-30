@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.7, 3.8]
+        python-version: [3.8, 3.9]
 
     steps:
     - uses: actions/checkout@v2
@@ -26,9 +26,9 @@ jobs:
     - name: wemake-python-styleguide
       uses: wemake-services/wemake-python-styleguide@0.14.1
       with:
-        path: './app'
+        path: './tj_feed'
 
     - name: Unittests
       run: |
         pip install -r requirements/dev.txt
-        pytest --cov=app tests
+        pytest --cov=tj_feed tests

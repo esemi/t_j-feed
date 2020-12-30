@@ -1,11 +1,10 @@
-import asyncio
 from typing import Any
 
 import pytest
 from starlette.config import environ
 from starlette.testclient import TestClient
 
-from app import webapp
+from tj_feed.app import webapp
 
 environ['TESTING'] = 'TRUE'
 
@@ -40,4 +39,4 @@ def client():
 
 @pytest.fixture(autouse=True)
 def mocked_grabber(mocker):
-    mocker.patch('app.grabber.fetch_last_comments', return_value=[])
+    mocker.patch('tj_feed.grabber.fetch_last_comments', return_value=[])

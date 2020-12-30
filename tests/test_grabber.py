@@ -1,6 +1,8 @@
+from asyncio import Semaphore
+
 import pytest
 
-from app.grabber import parse_comment, Comment, fetch_comments_page, fetch_last_comments, combine_batches, API_COMMENTS_PER_PAGE
+from tj_feed.grabber import parse_comment, Comment, fetch_comments_page, fetch_last_comments, combine_batches, API_COMMENTS_PER_PAGE
 
 
 def test_comment_parser():
@@ -30,7 +32,10 @@ def test_comment_parser():
 
 @pytest.mark.asyncio
 async def test_fetch_comments_page():
-    result = await fetch_comments_page(10, 18)
+    lock = Semaphore(9999)
+
+    result = await fetch_comments_page(10, 18, lock)
+
     assert len(result) == 10
     assert all(map(lambda x: isinstance(x, Comment), result))
     assert result[0].comment_id < result[1].comment_id

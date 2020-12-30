@@ -2,7 +2,7 @@ import random
 
 import pytest
 
-from app.storage import create_conn, set_max_offset, get_max_offset
+from tj_feed.storage import create_conn, set_max_offset, get_max_offset
 
 
 @pytest.mark.asyncio
