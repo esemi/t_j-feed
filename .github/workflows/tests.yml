@@ -18,10 +18,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements/common.txt
 
-    - name: Lint with flake8
-      run: |
-        pip install -r requirements/dev.txt
-        flake8 app --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: wemake-python-styleguide
+      uses: wemake-services/wemake-python-styleguide@0.14.1
 
     - name: Unittests
       run: |
