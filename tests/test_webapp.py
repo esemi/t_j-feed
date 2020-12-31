@@ -12,6 +12,12 @@ def test_index_endpoint(client):
     assert response.template.name == 'index.html'
 
 
+def test_feed_endpoint(client):
+    response = client.get('/feed')
+    assert response.status_code == 200
+    assert response.headers.get('content-type') == 'text/plain; charset=utf-8'
+
+
 def test_limit_param_invalid(client):
     response = client.get('/?l=invalid')
     assert response.status_code == 200
