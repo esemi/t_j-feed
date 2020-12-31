@@ -43,11 +43,11 @@ def unicode_normalize(source: str) -> str:
 
 
 def parse_comment(comment: dict) -> Comment:
-    user: dict = comment.get('author', {})
+    user: dict = comment.get('author', {}) if comment.get('author') else {}
     rating: dict = comment.get('rating', {})
     return Comment(
-        user_id=int(user.get('id')),
-        user_name=unicode_normalize(user.get('name')),
+        user_id=int(user.get('id', 0)),
+        user_name=unicode_normalize(user.get('name', 'unknown')),
         user_image=user.get('image') if user.get('image') else DEFAULT_AVATAR,
         comment_id=int(comment.get('id')),
         comment_content=unicode_normalize(comment.get('text')),

@@ -3,11 +3,12 @@ import logging
 from starlette.applications import Starlette
 from starlette.routing import Route
 
-from tj_feed.feed import last_comments
+from tj_feed.feed import feed_txt, index_html
 from tj_feed.storage import close_conn, create_conn
 
 webapp = Starlette(debug=False, routes=[
-    Route('/', last_comments, methods=['GET']),
+    Route('/', index_html, methods=['GET']),
+    Route('/feed', feed_txt, methods=['GET']),
 ])
 
 logger = logging.getLogger()

@@ -4,5 +4,4 @@ pytest
 pytest-cov
 pytest-asyncio
 pytest-mock
-Fabric3
 wemake-python-styleguide
