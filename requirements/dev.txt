@@ -3,5 +3,6 @@
 pytest
 pytest-cov
 pytest-asyncio
-flake8
+pytest-mock
 Fabric3
+wemake-python-styleguide
