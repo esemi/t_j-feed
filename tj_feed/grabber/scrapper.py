@@ -81,10 +81,10 @@ async def search_actual_offset(max_available_offset: int) -> int:
 
 def combine_batches_forward(start_offset: int) -> Iterator[Tuple[int, int]]:
     factors = [0, 1, 3, 5, 8, 13, 21, 34, 55]
-    yield from [
-        (start_offset + API_COMMENTS_PER_PAGE * factor, API_COMMENTS_PER_PAGE if not num else 1)
+    yield from (
+        (start_offset + API_COMMENTS_PER_PAGE * factor, 1 if num else API_COMMENTS_PER_PAGE)
         for num, factor in enumerate(factors)
-    ]
+    )
 
 
 async def fetch_comments_page_next_offset(limit: int, offset: int, lock: Semaphore) -> Optional[int]:

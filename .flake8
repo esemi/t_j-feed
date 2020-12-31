@@ -5,6 +5,7 @@ line_length = 125
 max-line-length = 150
 max-line-complexity = 15
 max-local-variables = 6
+max-module-members = 8
 
 ignore =
     D100, # Missing docstring in public module
