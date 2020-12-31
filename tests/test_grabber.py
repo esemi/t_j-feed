@@ -2,7 +2,7 @@ from asyncio import Semaphore
 
 import pytest
 
-from tj_feed.grabber import parse_comment, Comment, fetch_comments_page, fetch_last_comments, combine_batches, API_COMMENTS_PER_PAGE
+from tj_feed.grabber import parse_comment, Comment, fetch_comments_page, fetch_last_comments, combine_batches_back, API_COMMENTS_PER_PAGE, combine_batches_forward
 
 
 def test_comment_parser():
@@ -34,7 +34,7 @@ def test_comment_parser():
 async def test_fetch_comments_page():
     lock = Semaphore(9999)
 
-    result = await fetch_comments_page(10, 18, lock)
+    result = list(await fetch_comments_page(10, 18, lock))
 
     assert len(result) == 10
     assert all(map(lambda x: isinstance(x, Comment), result))
@@ -58,6 +58,15 @@ async def test_fetch_last_comments():
     (2001, 278901, [(276900, API_COMMENTS_PER_PAGE), (278900, API_COMMENTS_PER_PAGE)]),
 ])
 def test_combine_batches(total_limit: int, max_offset: int, expected: list):
-    res = list(combine_batches(total_limit, max_offset))
+    res = list(combine_batches_back(total_limit, max_offset))
+
+    assert res == expected
+
+
+@pytest.mark.parametrize("start_offset,expected", [
+    (178, [(178, 2000), (2178, 1), (6178, 1), (10178, 1), (16178, 1), (26178, 1)]),
+])
+def test_combine_batches_forward(start_offset: int, expected: list):
+    res = list(combine_batches_forward(start_offset))
 
     assert res == expected
