@@ -1,3 +1,9 @@
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def mocked_grabber(mocker):
+    mocker.patch('tj_feed.grabber._fetch_page', return_value=dict())
 
 
 def test_index_endpoint(client):

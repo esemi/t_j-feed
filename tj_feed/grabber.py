@@ -5,7 +5,7 @@ import unicodedata
 from asyncio import Semaphore
 from dataclasses import dataclass
 from itertools import chain
-from typing import Iterator, List, Optional, Tuple, Iterable
+from typing import Iterable, Iterator, List, Optional, Tuple
 
 import aiohttp
 from typed_json_dataclass import TypedJsonMixin
@@ -136,7 +136,7 @@ async def search_actual_offset(max_available_offset: int) -> int:
 def combine_batches_forward(start_offset: int) -> Iterator[Tuple[int, int]]:
     factors = [0, 1, 3, 5, 8, 13, 21, 34, 55]
     yield from [
-        (start_offset + API_COMMENTS_PER_PAGE * factor,  API_COMMENTS_PER_PAGE if not num else 1)
+        (start_offset + API_COMMENTS_PER_PAGE * factor, API_COMMENTS_PER_PAGE if not num else 1)
         for num, factor in enumerate(factors)
     ]
 
@@ -156,4 +156,3 @@ async def search_local_max_offset(start_offset: int) -> int:
     tasks = list(map(asyncio.create_task, tasks))
     offsets = await asyncio.gather(*tasks)
     return max(offsets)
-

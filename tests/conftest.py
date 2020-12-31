@@ -1,12 +1,10 @@
 from typing import Any
 
 import pytest
-from starlette.config import environ
 from starlette.testclient import TestClient
 
 from tj_feed.app import webapp
-
-environ['TESTING'] = 'TRUE'
+from tj_feed.storage import create_conn
 
 
 class MockStorage:
@@ -27,16 +25,13 @@ class MockStorage:
 
 
 @pytest.fixture(autouse=True)
-def mocked_storage(mocker):
+@pytest.mark.asyncio
+async def mocked_storage(mocker):
     mocker.patch('aioredis.create_redis_pool', return_value=MockStorage())
+    await create_conn()
 
 
 @pytest.fixture()
 def client():
     with TestClient(webapp) as test_client:
         yield test_client
-
-
-@pytest.fixture(autouse=True)
-def mocked_grabber(mocker):
-    mocker.patch('tj_feed.grabber.fetch_last_comments', return_value=[])

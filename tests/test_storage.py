@@ -8,7 +8,6 @@ from tj_feed.storage import create_conn, set_max_offset, get_max_offset
 @pytest.mark.asyncio
 async def test_max_offset():
     value = random.randint(1, 100500)
-    await create_conn()
 
     await set_max_offset(value)
 
