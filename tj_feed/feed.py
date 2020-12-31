@@ -3,7 +3,8 @@ import pathlib
 
 from starlette.templating import Jinja2Templates
 
-from tj_feed import grabber, storage
+from tj_feed import storage
+from tj_feed.grabber import scrapper
 
 COMMENTS_LIMIT_DEFAULT = 100
 COMMENTS_LIMIT_MAX = 10000
@@ -25,10 +26,10 @@ async def last_comments(request):
     current_max_offset = await storage.get_max_offset(default=0)
     logging.info(f'current_max_offset={current_max_offset}')
 
-    max_offset = await grabber.search_actual_offset(current_max_offset)
+    max_offset = await scrapper.search_actual_offset(current_max_offset)
     logging.info(f'max_offset={max_offset} total_limits={total_limits}')
 
-    all_comments = await grabber.fetch_last_comments(total_limits, max_offset)
+    all_comments = await scrapper.fetch_last_comments(total_limits, max_offset)
     logging.info(f'fetch {len(all_comments)} comments')
 
     return html_templates.TemplateResponse('index.html', {'request': request, 'comments': all_comments, 'last_offset': max_offset})
