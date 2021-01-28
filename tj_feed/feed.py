@@ -9,8 +9,8 @@ from tj_feed import storage
 from tj_feed.grabber import scrapper
 from tj_feed.grabber.parser import Comment
 
-COMMENTS_LIMIT_DEFAULT = 100
-COMMENTS_LIMIT_MAX = 20000
+LIMIT_DEFAULT = 100
+LIMIT_MAX = 20000
 
 
 html_templates = Jinja2Templates(directory=pathlib.Path(__file__).parent.joinpath('templates').absolute())
@@ -33,16 +33,34 @@ async def index_html(request):
     logging.info('last comments html request')
 
     try:
-        total_limits = int(request.query_params.get('l', default=COMMENTS_LIMIT_DEFAULT))
+        total_limits = int(request.query_params.get('l', default=LIMIT_DEFAULT))
     except ValueError:
-        total_limits = COMMENTS_LIMIT_DEFAULT
+        total_limits = LIMIT_DEFAULT
 
-    all_comments = await last_comments(min(COMMENTS_LIMIT_MAX, total_limits))
+    all_comments = await last_comments(min(LIMIT_MAX, total_limits))
 
     return html_templates.TemplateResponse('index.html', {
         'request': request,
         'comments': all_comments,
         'last_offset': await storage.get_max_offset(default=0),
+    })
+
+
+async def top_users_html(request):
+    # todo unittest
+    logging.info('top users html request')
+
+    try:
+        total_limits = int(request.query_params.get('l', default=LIMIT_DEFAULT))
+    except ValueError:
+        total_limits = LIMIT_DEFAULT
+
+    top_users = await scrapper.fetch_top_users(min(LIMIT_MAX, total_limits))
+    logging.info(f'fetch {len(top_users)} users by karma')
+
+    return html_templates.TemplateResponse('top.html', {
+        'request': request,
+        'users': top_users
     })
 
 
@@ -56,6 +74,6 @@ def comment_to_string(comment: Comment) -> str:
 
 async def feed_txt(request):
     logging.info('last comments feed.txt request')
-    all_comments = await last_comments(COMMENTS_LIMIT_MAX)
+    all_comments = await last_comments(LIMIT_MAX)
 
     return StreamingResponse(map(comment_to_string, all_comments), media_type='text/plain')

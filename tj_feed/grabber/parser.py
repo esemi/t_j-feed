@@ -1,6 +1,6 @@
 import unicodedata
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, List
 
 from typed_json_dataclass import TypedJsonMixin
 
@@ -32,6 +32,21 @@ class Comment(TypedJsonMixin):
         return f'{HOST}/user{str(self.user_id)}/'
 
 
+@dataclass
+class User(TypedJsonMixin):
+    id: int
+    badges: str
+    comments_count: int
+    image: Optional[str]
+    karma: int
+    name: str
+    extra: dict
+
+    @property
+    def user_link(self) -> str:
+        return f'{HOST}/user{str(self.id)}/'
+
+
 def unicode_normalize(source: str) -> str:
     try:
         source = source.replace('\xa0', ' ')
@@ -55,4 +70,17 @@ def parse_comment(comment: dict) -> Comment:
         comment_rating=rating.get('likes', 0) - rating.get('dislikes', 0),
         article_title=unicode_normalize(comment.get('article_title')),
         article_path=comment.get('article_path'),
+    )
+
+
+def parse_user(user: dict) -> User:
+    # TODO UNITTEST
+    return User(
+        id=int(user.get('id', 0)),
+        badges=str(user.get('badge', {}).get('text', '')),
+        comments_count=int(user.get('comments_shown_count', 0)),
+        image=user.get('image') if user.get('image') else DEFAULT_AVATAR,
+        karma=user.get('karma', 0),
+        name=unicode_normalize(user.get('name', 'unknown')),
+        extra=user.get('extra'),
     )

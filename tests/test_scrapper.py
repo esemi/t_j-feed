@@ -4,8 +4,8 @@ import pytest
 
 from tj_feed.grabber.parser import Comment
 from tj_feed.grabber.scrapper import (fetch_comments_page, fetch_last_comments, combine_batches_back, API_COMMENTS_PER_PAGE,
-                                      combine_batches_forward, _fetch_page, fetch_comments_page_next_offset, search_local_max_offset,
-                                      search_actual_offset)
+                                      combine_batches_forward, _request, fetch_comments_page_next_offset, search_local_max_offset,
+                                      search_actual_offset, API_COMMENTS_PARAMS)
 
 
 @pytest.mark.asyncio
@@ -39,11 +39,11 @@ async def test_search_actual_offset(mocker):
 
 @pytest.mark.asyncio
 async def test_fetch_comments_page_next_offset(mocker):
-    mocker.patch('tj_feed.grabber.scrapper._fetch_page', return_value=dict())
+    mocker.patch('tj_feed.grabber.scrapper._request', return_value=dict())
     result = await fetch_comments_page_next_offset(2, 7, Semaphore(1))
     assert result == 0
 
-    mocker.patch('tj_feed.grabber.scrapper._fetch_page', return_value=dict(data=[1, 2, 3]))
+    mocker.patch('tj_feed.grabber.scrapper._request', return_value=dict(data=[1, 2, 3]))
     result = await fetch_comments_page_next_offset(2, 7, Semaphore(1))
     assert result == 7 + 3
 
@@ -57,8 +57,10 @@ async def test_fetch_last_comments():
 
 
 @pytest.mark.asyncio
-async def test_fetch_page():
-    result = await _fetch_page(2, 7, Semaphore(1))
+async def test_request():
+    params = API_COMMENTS_PARAMS.copy()
+    params['limit'] = 2
+    result = await _request(params, Semaphore(1))
 
     assert isinstance(result, dict)
     data = result.get('data')
