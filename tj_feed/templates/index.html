@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <link href="/feed.rss" rel="alternate" type="application/rss+xml" title="Atom feed" >
+    <title>Т_Ж: Лента комментариев</title>
     <style type="text/css">
         html {
             font-family: Helvetica, Arial, sans-serif;
@@ -15,6 +14,10 @@
             background-color: #fff;
             color: #777;
             line-height: 1.6;
+        }
+
+        h1 {
+            color: #777;
         }
 
         h4, h5 {
@@ -52,8 +55,9 @@
 
 </head>
 <body>
-    <h1>Т_Ж комменты <span>(offset={{ last_offset }})</span></h1>
-    <a href="/feed">feed</a><br/>
+    <h1>Т_Ж: Лента комментариев <span>(offset={{ last_offset }})</span></h1>
+    <a href="{{ url_for('comments export') }}">summary in txt format</a><br/>
+    <a href="{{ url_for('user rating') }}">users rating</a><br/>
     {% for item in comments %}
         <article>
             <h4>{{ item.article_title }}</h4>

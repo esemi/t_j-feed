@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Т_Ж: Рейтинг пользователей</title>
+    <style type="text/css">
+        html {
+            font-family: Helvetica, Arial, sans-serif;
+            letter-spacing: 0.01em;
+        }
+
+        body {
+            min-width: 320px;
+            background-color: #fff;
+            line-height: 1.6;
+        }
+
+        a {
+            color: #3b8bba; /* block-background-text-normal */
+            text-decoration: none;
+        }
+        a:visited {
+            color: #265778; /* block-normal-text-normal */
+        }
+        a:hover, a:focus {
+            text-decoration: underline;
+        }
+
+        .table_custom {
+            text-decoration: none;
+            border-collapse:collapse;
+            width:auto;
+            text-align:right;
+        }
+
+        .table_custom th {
+            font-weight:normal;
+            font-size:14px;
+        }
+
+        .table_custom td {
+            font-size:20px;
+        }
+
+        .table_custom td, .table_custom th {
+            white-space:pre-wrap;
+            padding: 2px 15px;
+            line-height:20px;
+            vertical-align: middle;
+            border: 1px solid #40759c;
+        }
+
+        h1 {
+            color: #777;
+        }
+
+</style>
+
+</head>
+<body>
+    <h1>Т_Ж: Рейтинг пользователей <span>(TOP {{ limit }})</span></h1>
+    <a href="{{ url_for('user rating export') }}">summary in tsv format</a><br/>
+    <table class="table_custom">
+        <tr>
+            <th>#</th>
+            <th colspan="2">User</th>
+            <th>Total rating [desc]</th>
+            <th>Avg comment rating </th>
+            <th>Comments</th>
+            <th>Badges</th>
+        </tr>
+        {% for item in users %}
+        <tr>
+            <th style="font-weight: bold;font-size: 22px;">{{ "#%d"|format(loop.index) }}</th>
+            <th><a href="{{ item.user_link }}">{{ item.name | wordwrap(30) }}</a></th>
+            <th><a href="{{ item.user_link }}"><img src="{{ item.image }}" alt="empty avatar" width="72px" height="72px" ALIGN="left"  /></a></th>
+            <th>{{ item.karma }}</th>
+            <th>{{ "%10.4f"|format(item.avg_rating_per_comment) }}</th>
+            <th>{{ item.comments_count }}</th>
+            <th>{{ item.badges }}</th>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
