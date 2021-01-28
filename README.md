@@ -6,7 +6,7 @@
 
 ## Usage
 [read last comments online](http://tj.esemi.ru?l=100)
-[check top users](http://tj.esemi.ru/top-users?l=100)
+[check top users](http://tj.esemi.ru/top?l=100)
 
 
 ### Local run

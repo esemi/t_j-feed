@@ -7,10 +7,11 @@ from starlette.templating import Jinja2Templates
 
 from tj_feed import storage
 from tj_feed.grabber import scrapper
-from tj_feed.grabber.parser import Comment
+from tj_feed.grabber.parser import Comment, User
 
 LIMIT_DEFAULT = 100
-LIMIT_MAX = 20000
+COMMENTS_LIMIT_MAX = 20000
+USERS_LIMIT_MAX = 500
 
 
 html_templates = Jinja2Templates(directory=pathlib.Path(__file__).parent.joinpath('templates').absolute())
@@ -29,7 +30,7 @@ async def last_comments(total_limits: int) -> List[Comment]:
     return all_comments
 
 
-async def index_html(request):
+async def last_comments_html(request):
     logging.info('last comments html request')
 
     try:
@@ -37,7 +38,7 @@ async def index_html(request):
     except ValueError:
         total_limits = LIMIT_DEFAULT
 
-    all_comments = await last_comments(min(LIMIT_MAX, total_limits))
+    all_comments = await last_comments(min(COMMENTS_LIMIT_MAX, total_limits))
 
     return html_templates.TemplateResponse('index.html', {
         'request': request,
@@ -47,21 +48,51 @@ async def index_html(request):
 
 
 async def top_users_html(request):
-    # todo unittest
     logging.info('top users html request')
 
     try:
         total_limits = int(request.query_params.get('l', default=LIMIT_DEFAULT))
+        total_limits = min(USERS_LIMIT_MAX, total_limits)
     except ValueError:
         total_limits = LIMIT_DEFAULT
 
-    top_users = await scrapper.fetch_top_users(min(LIMIT_MAX, total_limits))
+    top_users = await scrapper.fetch_top_users(total_limits)
     logging.info(f'fetch {len(top_users)} users by karma')
 
     return html_templates.TemplateResponse('top.html', {
         'request': request,
-        'users': top_users
+        'users': top_users,
+        'limit': total_limits,
     })
+
+
+async def top_users_export(request):
+    # todo unittest
+    logging.info('top users export request')
+
+    top_users = await scrapper.fetch_top_users(USERS_LIMIT_MAX)
+    logging.info(f'fetch {len(top_users)} users by karma')
+
+    return StreamingResponse(iter([user_to_tsv(num, user) for num, user in enumerate(top_users)]), media_type='text/plain')
+
+
+def user_to_tsv(num: int, user: User) -> str:
+    return '\t'.join(map(str, [
+        num,
+        user.name,
+        user.karma,
+        user.comments_count,
+        user.avg_rating_per_comment,
+        user.badges,
+        "\n",
+    ]))
+
+
+async def last_comments_txt(request):
+    logging.info('last comments feed.txt request')
+    all_comments = await last_comments(COMMENTS_LIMIT_MAX)
+
+    return StreamingResponse(map(comment_to_string, all_comments), media_type='text/plain')
 
 
 def comment_to_string(comment: Comment) -> str:
@@ -71,9 +102,3 @@ def comment_to_string(comment: Comment) -> str:
         f'>> {comment.comment_link}\n',
     ])
 
-
-async def feed_txt(request):
-    logging.info('last comments feed.txt request')
-    all_comments = await last_comments(LIMIT_MAX)
-
-    return StreamingResponse(map(comment_to_string, all_comments), media_type='text/plain')

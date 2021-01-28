@@ -1,5 +1,6 @@
 import unicodedata
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import Optional, List
 
 from typed_json_dataclass import TypedJsonMixin
@@ -45,6 +46,13 @@ class User(TypedJsonMixin):
     @property
     def user_link(self) -> str:
         return f'{HOST}/user{str(self.id)}/'
+
+    @property
+    def avg_rating_per_comment(self) -> float:
+        if not self.comments_count:
+            return self.karma
+
+        return self.karma / self.comments_count
 
 
 def unicode_normalize(source: str) -> str:
