@@ -5,7 +5,7 @@ line_length = 125
 max-line-length = 150
 max-line-complexity = 15
 max-local-variables = 6
-max-module-members = 8
+max-module-members = 12
 
 ignore =
     D100, # Missing docstring in public module
@@ -17,8 +17,10 @@ ignore =
     D107, # Missing docstring in __init__
     DAR101, # Missing parameter(s) in Docstring
     DAR201, # Missing "Returns" in Docstring
+    WPS226, # Found string constant over-use
 
     WPS305, # f-strings
     WPS420, # allow 'pass' (but also 'global','local' & 'del')
 
+    I001,
     I004,  # isort found an unexpected blank line in imports

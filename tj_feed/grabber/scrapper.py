@@ -2,22 +2,35 @@ import asyncio
 import logging
 import operator
 from asyncio import Semaphore
+from collections import OrderedDict
 from itertools import chain
 from typing import Iterable, Iterator, List, Optional, Tuple
 
 import aiohttp
 
 from tj_feed import storage
-from tj_feed.grabber.parser import Comment, parse_comment
-
-API_HOST = 'https://social.journal.tinkoff.ru'
-API_ENDPOINT_COMMENTS = '/api/v13/comments/'
+from tj_feed.grabber.parser import Comment, parse_comment, User, parse_user
 
 CONNECTIONS_POOL = Semaphore(5)
 CONNECTIONS_TIMEOUT = 30
 CONNECTIONS_DNS_CACHE = 300
 
+API_HOST = 'https://social.journal.tinkoff.ru'
+
+API_ENDPOINT_USERS = '/api/v13/profiles/'
+API_USERS_PER_PAGE = 100
+API_USERS_PARAMS = OrderedDict({
+    'order_by': 'karma',
+    'unsafe': 'true',
+})
+
+API_ENDPOINT_COMMENTS = '/api/v13/comments/'
 API_COMMENTS_PER_PAGE = 2000
+API_COMMENTS_PARAMS = OrderedDict({
+    'include': 'article_path,article_title,user',
+    'order_by': 'date_added',
+    'unsafe': 'true',
+})
 
 
 def combine_batches_back(total_limit: int, max_offset: int) -> Iterator[Tuple]:
@@ -26,6 +39,26 @@ def combine_batches_back(total_limit: int, max_offset: int) -> Iterator[Tuple]:
         (local_offset, API_COMMENTS_PER_PAGE)
         for local_offset in range(offset_start, max(max_offset, API_COMMENTS_PER_PAGE), API_COMMENTS_PER_PAGE)
     )
+
+
+async def fetch_top_users(total_limit: int) -> List[User]:
+    tasks = [
+        fetch_users_page(API_USERS_PER_PAGE, local_offset, CONNECTIONS_POOL)
+        for local_offset in range(0, total_limit, API_USERS_PER_PAGE)
+    ]
+    tasks = list(map(asyncio.create_task, tasks))
+
+    all_users = list(chain.from_iterable(await asyncio.gather(*tasks)))
+    all_users.sort(key=operator.attrgetter('karma'), reverse=True)
+    return all_users[:total_limit]
+
+
+async def fetch_users_page(limit: int, offset: int, lock: Semaphore) -> Iterable[User]:
+    request_params = API_USERS_PARAMS.copy()
+    request_params['limit'] = limit
+    request_params['offset'] = offset
+    resp = await _request(API_ENDPOINT_USERS, request_params, lock)
+    return map(parse_user, resp.get('data', []))
 
 
 async def fetch_last_comments(total_limit: int, max_available_offset: int) -> List[Comment]:
@@ -40,29 +73,24 @@ async def fetch_last_comments(total_limit: int, max_available_offset: int) -> Li
     return all_comments[:total_limit]
 
 
-async def _fetch_page(limit: int, offset: int, lock: Semaphore) -> dict:
-    """Fetch one page of comments and return structured comments list."""
-    request_params = {
-        'include': 'article_path,article_title,user',
-        'order_by': 'date_added',
-        'offset': offset,
-        'limit': limit,
-        'unsafe': 'true',
-    }
+async def fetch_comments_page(limit: int, offset: int, lock: Semaphore) -> Iterable[Comment]:
+    request_params = API_COMMENTS_PARAMS.copy()
+    request_params['limit'] = limit
+    request_params['offset'] = offset
+    resp = await _request(API_ENDPOINT_COMMENTS, request_params, lock)
+    return map(parse_comment, resp.get('data', []))
 
+
+async def _request(endpoint: str, request_params: dict, lock: Semaphore) -> dict:
+    """Request to unofficial API."""
     timeout = aiohttp.ClientTimeout(total=CONNECTIONS_TIMEOUT)
     conn = aiohttp.TCPConnector(ttl_dns_cache=CONNECTIONS_DNS_CACHE)
     async with lock:
         async with aiohttp.ClientSession(timeout=timeout, connector=conn) as session:
-            async with session.get(f'{API_HOST}{API_ENDPOINT_COMMENTS}', params=request_params) as resp:
+            async with session.get(f'{API_HOST}{endpoint}', params=request_params) as resp:
                 logging.info(f'fetch comments req_par={request_params} with code={resp.status}')
                 resp.raise_for_status()
                 return await resp.json()
-
-
-async def fetch_comments_page(limit: int, offset: int, lock: Semaphore) -> Iterable[Comment]:
-    resp = await _fetch_page(limit, offset, lock)
-    return map(parse_comment, resp.get('data', []))
 
 
 async def search_actual_offset(max_available_offset: int) -> int:
@@ -88,7 +116,11 @@ def combine_batches_forward(start_offset: int) -> Iterator[Tuple[int, int]]:
 
 
 async def fetch_comments_page_next_offset(limit: int, offset: int, lock: Semaphore) -> Optional[int]:
-    comments: list = (await _fetch_page(limit, offset, lock)).get('data', [])
+    request_params = API_COMMENTS_PARAMS.copy()
+    request_params['limit'] = limit
+    request_params['offset'] = offset
+
+    comments: list = (await _request(API_ENDPOINT_COMMENTS, request_params, lock)).get('data', [])
     if comments:
         return offset + len(comments)
     return 0
