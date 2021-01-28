@@ -52,10 +52,10 @@ async def top_users_html(request):
 
     try:
         total_limits = int(request.query_params.get('l', default=LIMIT_DEFAULT))
-        total_limits = min(USERS_LIMIT_MAX, total_limits)
     except ValueError:
         total_limits = LIMIT_DEFAULT
 
+    total_limits = min(USERS_LIMIT_MAX, total_limits)
     top_users = await scrapper.fetch_top_users(total_limits)
     logging.info(f'fetch {len(top_users)} users by karma')
 
@@ -67,13 +67,13 @@ async def top_users_html(request):
 
 
 async def top_users_export(request):
-    # todo unittest
     logging.info('top users export request')
 
     top_users = await scrapper.fetch_top_users(USERS_LIMIT_MAX)
     logging.info(f'fetch {len(top_users)} users by karma')
 
-    return StreamingResponse(iter([user_to_tsv(num, user) for num, user in enumerate(top_users)]), media_type='text/plain')
+    users_as_tsv: List[str] = [user_to_tsv(num, user) for num, user in enumerate(top_users)]
+    return StreamingResponse(iter(users_as_tsv), media_type='text/plain')
 
 
 def user_to_tsv(num: int, user: User) -> str:
@@ -84,7 +84,7 @@ def user_to_tsv(num: int, user: User) -> str:
         user.comments_count,
         user.avg_rating_per_comment,
         user.badges,
-        "\n",
+        '\n',
     ]))
 
 
@@ -101,4 +101,3 @@ def comment_to_string(comment: Comment) -> str:
         f'>> {comment.user_name}: {comment.comment_content}',
         f'>> {comment.comment_link}\n',
     ])
-

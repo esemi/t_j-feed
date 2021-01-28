@@ -10,7 +10,7 @@ def test_user_parser():
     result = parse_user(source)
 
     assert isinstance(result, User)
-    assert result.id == 5227
+    assert result.user_id == 5227
     assert result.name == 'Pavla Tolokonina'
     assert result.user_link == 'https://journal.tinkoff.ru/user5227/'
     assert result.karma == 21651

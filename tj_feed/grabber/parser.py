@@ -1,10 +1,8 @@
 import unicodedata
 from dataclasses import dataclass
-from decimal import Decimal
-from typing import Optional, List
+from typing import Optional
 
 from typed_json_dataclass import TypedJsonMixin
-
 
 HOST = 'https://journal.tinkoff.ru'
 DEFAULT_AVATAR = 'https://static2.tinkoffjournal.ru/mercury-front/fbfb8fb7b8ce70bf9516d9028e231419853c5444/face-08.982a.png'
@@ -35,7 +33,7 @@ class Comment(TypedJsonMixin):
 
 @dataclass
 class User(TypedJsonMixin):
-    id: int
+    user_id: int
     badges: str
     comments_count: int
     image: Optional[str]
@@ -45,7 +43,7 @@ class User(TypedJsonMixin):
 
     @property
     def user_link(self) -> str:
-        return f'{HOST}/user{str(self.id)}/'
+        return f'{HOST}/user{str(self.user_id)}/'
 
     @property
     def avg_rating_per_comment(self) -> float:
@@ -84,7 +82,7 @@ def parse_comment(comment: dict) -> Comment:
 def parse_user(user: dict) -> User:
     badge = user.get('badge', {})
     return User(
-        id=int(user.get('id', 0)),
+        user_id=int(user.get('id', 0)),
         badges=str(badge.get('text', '')) if badge else '',
         comments_count=int(user.get('comments_shown_count', 0)),
         image=user.get('image') if user.get('image') else DEFAULT_AVATAR,
