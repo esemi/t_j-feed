@@ -74,10 +74,10 @@ def parse_comment(comment: dict) -> Comment:
 
 
 def parse_user(user: dict) -> User:
-    # TODO UNITTEST
+    badge = user.get('badge', {})
     return User(
         id=int(user.get('id', 0)),
-        badges=str(user.get('badge', {}).get('text', '')),
+        badges=str(badge.get('text', '')) if badge else '',
         comments_count=int(user.get('comments_shown_count', 0)),
         image=user.get('image') if user.get('image') else DEFAULT_AVATAR,
         karma=user.get('karma', 0),

@@ -1,4 +1,23 @@
-from tj_feed.grabber.parser import parse_comment, Comment, unicode_normalize
+from tj_feed.grabber.parser import parse_comment, Comment, unicode_normalize, parse_user, User
+
+
+def test_user_parser():
+    source = {"id": 5227, "name": "Pavla Tolokonina", "image": "https://graph.facebook.com/v7.0/10154947640836169/picture?type=square&return_ssl_resources=1&height=600&width=600",
+              "karma": 21651, "badge": {"type": "custom", "text": "Герой Т—Ж 🏆"}, "extra": {}, "comments_shown_count": 3827,
+              "participation": [{"article_title": "От пижамы до робота-пылесоса: список подарков, которые все хотят получить на Новый год",
+                                 "article_path": "/my-wish-is/", "role": "hero", "role_description": ""}], "ban": None}
+
+    result = parse_user(source)
+
+    assert isinstance(result, User)
+    assert result.id == 5227
+    assert result.name == 'Pavla Tolokonina'
+    assert result.user_link == 'https://journal.tinkoff.ru/user5227/'
+    assert result.karma == 21651
+    assert result.badges == 'Герой Т—Ж 🏆'
+    assert result.comments_count == 3827
+    assert result.image == 'https://graph.facebook.com/v7.0/10154947640836169/picture?type=square&return_ssl_resources=1&height=600&width=600'
+    assert result.extra == dict()
 
 
 def test_comment_parser():

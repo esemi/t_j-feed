@@ -41,7 +41,6 @@ def combine_batches_back(total_limit: int, max_offset: int) -> Iterator[Tuple]:
 
 
 async def fetch_top_users(total_limit: int) -> List[User]:
-    # todo unittest
     tasks = [
         fetch_users_page(API_USERS_PER_PAGE, local_offset, CONNECTIONS_POOL)
         for local_offset in range(0, total_limit, API_USERS_PER_PAGE)
@@ -49,16 +48,15 @@ async def fetch_top_users(total_limit: int) -> List[User]:
     tasks = list(map(asyncio.create_task, tasks))
 
     all_users = list(chain.from_iterable(await asyncio.gather(*tasks)))
-    all_users.sort(key=operator.attrgetter('comment_date'), reverse=True)
+    all_users.sort(key=operator.attrgetter('karma'), reverse=True)
     return all_users[:total_limit]
 
 
 async def fetch_users_page(limit: int, offset: int, lock: Semaphore) -> Iterable[User]:
-    # todo unittest
     params = API_USERS_PARAMS.copy()
     params['limit'] = limit
     params['offset'] = offset
-    resp = await _request(params, lock)
+    resp = await _request(API_ENDPOINT_USERS, params, lock)
     return map(parse_user, resp.get('data', []))
 
 
@@ -78,11 +76,11 @@ async def fetch_comments_page(limit: int, offset: int, lock: Semaphore) -> Itera
     params = API_COMMENTS_PARAMS.copy()
     params['limit'] = limit
     params['offset'] = offset
-    resp = await _request(params, lock)
+    resp = await _request(API_ENDPOINT_COMMENTS, params, lock)
     return map(parse_comment, resp.get('data', []))
 
 
-async def _request(params: dict, lock: Semaphore) -> dict:
+async def _request(endpoint: str, params: dict, lock: Semaphore) -> dict:
     """Request to unofficial API.
     """
 
@@ -90,7 +88,7 @@ async def _request(params: dict, lock: Semaphore) -> dict:
     conn = aiohttp.TCPConnector(ttl_dns_cache=CONNECTIONS_DNS_CACHE)
     async with lock:
         async with aiohttp.ClientSession(timeout=timeout, connector=conn) as session:
-            async with session.get(f'{API_HOST}{API_ENDPOINT_COMMENTS}', params=params) as resp:
+            async with session.get(f'{API_HOST}{endpoint}', params=params) as resp:
                 logging.info(f'fetch comments req_par={params} with code={resp.status}')
                 resp.raise_for_status()
                 return await resp.json()
@@ -123,7 +121,7 @@ async def fetch_comments_page_next_offset(limit: int, offset: int, lock: Semapho
     params['limit'] = limit
     params['offset'] = offset
 
-    comments: list = (await _request(params, lock)).get('data', [])
+    comments: list = (await _request(API_ENDPOINT_COMMENTS, params, lock)).get('data', [])
     if comments:
         return offset + len(comments)
     return 0

@@ -2,10 +2,21 @@ from asyncio import Semaphore
 
 import pytest
 
-from tj_feed.grabber.parser import Comment
+from tj_feed.grabber.parser import Comment, User
 from tj_feed.grabber.scrapper import (fetch_comments_page, fetch_last_comments, combine_batches_back, API_COMMENTS_PER_PAGE,
                                       combine_batches_forward, _request, fetch_comments_page_next_offset, search_local_max_offset,
-                                      search_actual_offset, API_COMMENTS_PARAMS)
+                                      search_actual_offset, API_COMMENTS_PARAMS, API_ENDPOINT_COMMENTS, fetch_users_page, fetch_top_users)
+
+
+@pytest.mark.asyncio
+async def test_fetch_users_page():
+    lock = Semaphore(9999)
+
+    result = list(await fetch_users_page(10, 18, lock))
+
+    assert len(result) == 10
+    assert all(map(lambda x: isinstance(x, User), result))
+    assert result[0].karma > result[1].karma
 
 
 @pytest.mark.asyncio
@@ -17,6 +28,14 @@ async def test_fetch_comments_page():
     assert len(result) == 10
     assert all(map(lambda x: isinstance(x, Comment), result))
     assert result[0].comment_id < result[1].comment_id
+
+
+@pytest.mark.asyncio
+async def test_fetch_top_users():
+    result = await fetch_top_users(101)
+
+    assert len(result) == 101
+    assert result[0].karma > result[1].karma
 
 
 @pytest.mark.asyncio
@@ -60,7 +79,7 @@ async def test_fetch_last_comments():
 async def test_request():
     params = API_COMMENTS_PARAMS.copy()
     params['limit'] = 2
-    result = await _request(params, Semaphore(1))
+    result = await _request(API_ENDPOINT_COMMENTS, params, Semaphore(1))
 
     assert isinstance(result, dict)
     data = result.get('data')
