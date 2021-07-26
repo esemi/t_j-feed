@@ -29,6 +29,7 @@ $ pip install -r requirements/dev.txt
 ### run tests
 ```bash
 $ pytest --cov=tj_feed tests
+$ mypy --ignore-missing-imports tj_feed/
 $ flake8 tj_feed
 ```
 
