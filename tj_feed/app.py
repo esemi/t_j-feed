@@ -9,9 +9,7 @@ from tj_feed import storage
 HTTP_METHOD_GET = 'GET'
 
 webapp = Starlette(debug=False, routes=[
-    Route('/', feed.last_comments_html, methods=[HTTP_METHOD_GET], name='homepage'),
-    Route('/export', feed.last_comments_txt, methods=[HTTP_METHOD_GET], name='comments export'),
-    Route('/top', feed.top_users_html, methods=[HTTP_METHOD_GET], name='user rating'),
+    Route('/', feed.top_users_html, methods=[HTTP_METHOD_GET], name='user rating'),
     Route('/top/export', feed.top_users_export, methods=[HTTP_METHOD_GET], name='user rating export'),
 ])
 
