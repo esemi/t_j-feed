@@ -3,7 +3,8 @@ import logging
 from starlette.applications import Starlette
 from starlette.routing import Route
 
-from tj_feed.feed import last_comments_html, last_comments_txt, top_users_export, top_users_html
+from tj_feed.feed import (last_comments_html, last_comments_txt,
+                          top_users_export, top_users_html)
 from tj_feed.storage import close_conn, create_conn
 
 HTTP_METHOD_GET = 'GET'

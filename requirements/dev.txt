@@ -5,3 +5,4 @@ pytest-cov
 pytest-asyncio
 pytest-mock
 wemake-python-styleguide
+mypy
