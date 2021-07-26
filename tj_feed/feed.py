@@ -14,7 +14,9 @@ COMMENTS_LIMIT_MAX = 10000
 USERS_LIMIT_MAX = 1000
 
 
-html_templates = Jinja2Templates(directory=pathlib.Path(__file__).parent.joinpath('templates').absolute())
+html_templates = Jinja2Templates(directory=str(
+    pathlib.Path(__file__).parent.joinpath('templates').absolute(),
+))
 
 
 async def last_comments(total_limits: int) -> List[Comment]:
@@ -25,7 +27,7 @@ async def last_comments(total_limits: int) -> List[Comment]:
     logging.info(f'max_offset={max_offset} total_limits={total_limits}')
 
     all_comments = await scrapper.fetch_last_comments(total_limits, max_offset)
-    logging.info(f'fetch {len(all_comments)} comments')
+    logging.info('fetch {0} comments', len(all_comments))
 
     return all_comments
 
@@ -57,7 +59,7 @@ async def top_users_html(request):
 
     total_limits = min(USERS_LIMIT_MAX, total_limits)
     top_users = await scrapper.fetch_top_users(total_limits)
-    logging.info(f'fetch {len(top_users)} users by karma')
+    logging.info('fetch {0} users by karma', len(top_users))
 
     return html_templates.TemplateResponse('top.html', {
         'request': request,
@@ -70,7 +72,7 @@ async def top_users_export(request):
     logging.info('top users export request')
 
     top_users = await scrapper.fetch_top_users(USERS_LIMIT_MAX)
-    logging.info(f'fetch {len(top_users)} users by karma')
+    logging.info('fetch {0} users by karma', len(top_users))
 
     users_as_tsv: List[str] = [user_to_tsv(num, user) for num, user in enumerate(top_users)]
     return StreamingResponse(iter(users_as_tsv), media_type='text/plain')

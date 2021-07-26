@@ -18,7 +18,6 @@ def test_user_parser():
     assert result.comments_count == 3827
     assert result.avg_rating_per_comment == 21651 / 3827
     assert result.image == 'https://graph.facebook.com/v7.0/10154947640836169/picture?type=square&return_ssl_resources=1&height=600&width=600'
-    assert result.extra == dict()
 
 
 def test_comment_parser():

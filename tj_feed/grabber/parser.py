@@ -8,8 +8,16 @@ HOST = 'https://journal.tinkoff.ru'
 DEFAULT_AVATAR = 'https://static2.tinkoffjournal.ru/mercury-front/fbfb8fb7b8ce70bf9516d9028e231419853c5444/face-08.982a.png'
 
 
+class UserLinkMixin(object):
+    user_id: int
+
+    @property
+    def user_link(self) -> str:
+        return '{0}/user{1}/'.format(HOST, str(self.user_id))
+
+
 @dataclass
-class Comment(TypedJsonMixin):
+class Comment(TypedJsonMixin, UserLinkMixin):
     user_id: int
     user_name: str
     user_image: Optional[str]
@@ -24,26 +32,17 @@ class Comment(TypedJsonMixin):
 
     @property
     def comment_link(self) -> str:
-        return f'{HOST}{self.article_path}#c{str(self.comment_id)}'
-
-    @property
-    def user_link(self) -> str:
-        return f'{HOST}/user{str(self.user_id)}/'
+        return '{0}{1}#c{2}'.format(HOST, self.article_path, str(self.comment_id))
 
 
 @dataclass
-class User(TypedJsonMixin):
+class User(TypedJsonMixin, UserLinkMixin):
     user_id: int
     badges: str
     comments_count: int
     image: Optional[str]
     karma: int
     name: str
-    extra: dict
-
-    @property
-    def user_link(self) -> str:
-        return f'{HOST}/user{str(self.user_id)}/'
 
     @property
     def avg_rating_per_comment(self) -> float:
@@ -70,12 +69,12 @@ def parse_comment(comment: dict) -> Comment:
         user_id=int(user.get('id', 0)),
         user_name=unicode_normalize(user.get('name', 'unknown')),
         user_image=user.get('image') if user.get('image') else DEFAULT_AVATAR,
-        comment_id=int(comment.get('id')),
-        comment_content=unicode_normalize(comment.get('text')),
-        comment_date=comment.get('date_added'),
+        comment_id=int(str(comment.get('id'))),
+        comment_content=unicode_normalize(str(comment.get('text'))),
+        comment_date=str(comment.get('date_added')),
         comment_rating=rating.get('likes', 0) - rating.get('dislikes', 0),
-        article_title=unicode_normalize(comment.get('article_title')),
-        article_path=comment.get('article_path'),
+        article_title=unicode_normalize(str(comment.get('article_title'))),
+        article_path=str(comment.get('article_path')),
     )
 
 
@@ -87,6 +86,5 @@ def parse_user(user: dict) -> User:
         comments_count=int(user.get('comments_shown_count', 0)),
         image=user.get('image') if user.get('image') else DEFAULT_AVATAR,
         karma=user.get('karma', 0),
-        name=unicode_normalize(user.get('name', 'unknown')),
-        extra=user.get('extra'),
+        name=unicode_normalize(str(user.get('name', 'unknown'))),
     )
