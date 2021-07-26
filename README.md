@@ -1,15 +1,12 @@
 # tj-feed
-Лента комментов на Т_Ж
+Таблица рейтинга пользователей Т_Ж
 ---
+
 [![build](https://github.com/esemi/tj_feed/actions/workflows/deployment.yml/badge.svg?branch=master)](https://github.com/esemi/tj_feed/actions/workflows/deployment.yml)
 [![wemake-python-styleguide](https://github.com/esemi/tj_feed/actions/workflows/linters.yml/badge.svg?branch=master)](https://github.com/esemi/tj_feed/actions/workflows/linters.yml)
 [![pytest](https://github.com/esemi/tj_feed/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/esemi/tj_feed/actions/workflows/tests.yml)
 
-Для тех, кому надоело искать новые комменты в старых статьях journal.tinkoff.ru (^.^) 
-
 ## Usage
-[read last comments online](http://tj.esemi.ru?l=100)
-
 [check top users](http://tj.esemi.ru/top?l=100)
 
 
