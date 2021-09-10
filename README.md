@@ -1,4 +1,4 @@
-[Таблица](http://tj.esemi.ru/?l=100) рейтинга пользователей [Т_Ж](https://journal.tinkoff.ru/)
+Рейтинговая [таблица](http://tj.esemi.ru/?l=100) пользователей [Т_Ж](https://journal.tinkoff.ru/)
 ---
 
 [![pytest](https://github.com/esemi/t_j-feed/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/esemi/t_j-feed/actions/workflows/tests.yml)
