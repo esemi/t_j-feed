@@ -1,4 +1,3 @@
-# tj-feed
 Таблица рейтинга пользователей [Т_Ж](https://journal.tinkoff.ru/)
 ---
 
