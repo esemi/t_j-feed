@@ -1,9 +1,8 @@
 [Таблица](http://tj.esemi.ru/?l=100) рейтинга пользователей [Т_Ж](https://journal.tinkoff.ru/)
 ---
 
-[![build](https://github.com/esemi/t_j-feed/actions/workflows/deployment.yml/badge.svg?branch=master)](https://github.com/esemi/t_j-feed/actions/workflows/deployment.yml)
-[![wemake-python-styleguide](https://github.com/esemi/t_j-feed/actions/workflows/linters.yml/badge.svg?branch=master)](https://github.com/esemi/t_j-feed/actions/workflows/linters.yml)
 [![pytest](https://github.com/esemi/t_j-feed/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/esemi/t_j-feed/actions/workflows/tests.yml)
+[![deploy](https://github.com/esemi/t_j-feed/actions/workflows/deployment.yml/badge.svg?branch=master)](https://github.com/esemi/t_j-feed/actions/workflows/deployment.yml)
 
 
 ## Project local running
