@@ -3,7 +3,7 @@
 
 [![pytest](https://github.com/esemi/t_j-feed/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/esemi/t_j-feed/actions/workflows/tests.yml)
 [![deploy](https://github.com/esemi/t_j-feed/actions/workflows/deployment.yml/badge.svg?branch=master)](https://github.com/esemi/t_j-feed/actions/workflows/deployment.yml)
-
+[![CodeQL](https://github.com/esemi/t_j-feed/actions/workflows/codeql-analysis.yml/badge.svg?branch=master)](https://github.com/esemi/t_j-feed/actions/workflows/codeql-analysis.yml)
 ![image](https://user-images.githubusercontent.com/4115497/132915239-ed7e7fa3-07ff-43b3-a3fe-8d6380a34ae7.png)
 
 
