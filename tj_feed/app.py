@@ -4,7 +4,6 @@ from starlette.applications import Starlette
 from starlette.routing import Route
 
 from tj_feed import feed
-from tj_feed import storage
 
 HTTP_METHOD_GET = 'GET'
 
@@ -20,15 +19,3 @@ app_log.setFormatter(formatter)
 logger.handlers = []
 logger.addHandler(app_log)
 logger.setLevel(logging.INFO)
-
-
-@webapp.on_event('startup')
-async def startup():
-    await storage.create_conn()
-    logging.info('connect to redis')
-
-
-@webapp.on_event('shutdown')
-async def shutdown():
-    await storage.close_conn()
-    logging.info('connect to redis closed')
