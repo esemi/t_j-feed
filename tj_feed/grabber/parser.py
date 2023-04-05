@@ -2,7 +2,7 @@ import unicodedata
 from dataclasses import dataclass
 from typing import Optional
 
-from typed_json_dataclass import TypedJsonMixin
+from typed_json_dataclass import TypedJsonMixin  # type: ignore
 
 HOST = 'https://journal.tinkoff.ru'
 DEFAULT_AVATAR = 'https://static2.tinkoffjournal.ru/mercury-front/fbfb8fb7b8ce70bf9516d9028e231419853c5444/face-08.982a.png'
@@ -15,14 +15,15 @@ class User(TypedJsonMixin):
     comments_count: int
     image: Optional[str]
     karma: int
+    karma_by_comments: int
     name: str
 
     @property
     def avg_rating_per_comment(self) -> float:
         if not self.comments_count:
-            return self.karma
+            return self.karma_by_comments
 
-        return self.karma / self.comments_count
+        return self.karma_by_comments / self.comments_count
 
     @property
     def user_link(self) -> str:
@@ -41,11 +42,13 @@ def unicode_normalize(source: str) -> str:
 
 def parse_user(user: dict) -> User:
     badge = user.get('badge', {})
+    karma = user.get('karma', 0)
     return User(
         user_id=int(user.get('id', 0)),
         badges=str(badge.get('text', '')) if badge else '',
         comments_count=int(user.get('comments_shown_count', 0)),
         image=user.get('image') if user.get('image') else DEFAULT_AVATAR,
-        karma=user.get('karma', 0),
+        karma=karma,
+        karma_by_comments=user.get('karma_actions', {}).get('comments', karma),
         name=unicode_normalize(str(user.get('name', 'unknown'))),
     )

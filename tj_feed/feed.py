@@ -3,6 +3,7 @@ import pathlib
 from typing import List
 
 from starlette.responses import StreamingResponse
+from starlette.requests import Request
 from starlette.templating import Jinja2Templates
 
 from tj_feed.grabber import scrapper
@@ -17,7 +18,7 @@ html_templates = Jinja2Templates(directory=str(
 ))
 
 
-async def top_users_html(request):
+async def top_users_html(request: Request):
     logging.info('top users html request')
 
     try:
@@ -36,7 +37,7 @@ async def top_users_html(request):
     })
 
 
-async def top_users_export(request):
+async def top_users_export(request: Request):
     logging.info('top users export request')
 
     top_users = await scrapper.fetch_top_users(USERS_LIMIT_MAX)

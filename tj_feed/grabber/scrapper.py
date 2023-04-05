@@ -3,7 +3,7 @@ import logging
 import operator
 from collections import OrderedDict
 from itertools import chain
-from typing import Iterable, List, Dict, Union, Generator
+from typing import Iterable, List, Dict, Union
 
 import aiohttp
 
@@ -24,7 +24,9 @@ API_USERS_PARAMS: Dict[str, Union[str, int]] = OrderedDict({
 
 
 async def fetch_top_users(total_limit: int) -> List[User]:
-    offsets = [local_offset for local_offset in range(0, total_limit, API_USERS_PER_PAGE)]
+    offsets = list(
+        range(0, total_limit, API_USERS_PER_PAGE),
+    )
     parsed_users = []
     for offsets_for_processing in chunk(offsets, CONNECTIONS_LIMIT):
         tasks: List[asyncio.Task] = [
@@ -58,6 +60,8 @@ async def _request(endpoint: str, request_params: dict) -> dict:
             return await resp.json()
 
 
-def chunk(data: List, size: int) -> Generator[List, None, None]:
-    for i in range(0, len(data), size):
-        yield data[i: i + size]
+def chunk(chunk_source: List, size: int) -> List:
+    return [
+        chunk_source[index: index + size]
+        for index in range(0, len(chunk_source), size)
+    ]
