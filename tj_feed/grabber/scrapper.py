@@ -15,7 +15,7 @@ CONNECTIONS_DNS_CACHE = 300
 
 API_HOST = 'https://social.journal.tinkoff.ru'
 
-API_ENDPOINT_USERS = '/api/v13/profiles/'
+API_ENDPOINT_USERS = '/api/v25/profiles/'
 API_USERS_PER_PAGE = 100
 API_USERS_PARAMS: Dict[str, Union[str, int]] = OrderedDict({
     'order_by': 'karma',
