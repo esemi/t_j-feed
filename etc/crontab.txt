@@ -1,0 +1,3 @@
+HOME=/home/%USERNAME%/current
+
+00  */6 *   *   *   /home/%USERNAME%/venv/bin/python -m tj_feed.worker

@@ -2,16 +2,12 @@ import logging
 import pathlib
 from typing import List
 
-from starlette.responses import StreamingResponse
 from starlette.requests import Request
+from starlette.responses import StreamingResponse
 from starlette.templating import Jinja2Templates
 
-from tj_feed.grabber import scrapper
+from tj_feed import settings, storage
 from tj_feed.grabber.parser import User
-
-LIMIT_DEFAULT = 100
-USERS_LIMIT_MAX = 1000
-
 
 html_templates = Jinja2Templates(directory=str(
     pathlib.Path(__file__).parent.joinpath('templates').absolute(),
@@ -22,16 +18,15 @@ async def top_users_html(request: Request):
     logging.info('top users html request')
 
     try:
-        total_limits = int(request.query_params.get('l', default=LIMIT_DEFAULT))
+        total_limits = int(request.query_params.get('l', default=settings.USERS_LIMIT_DEFAULT))
     except ValueError:
-        total_limits = LIMIT_DEFAULT
+        total_limits = settings.USERS_LIMIT_DEFAULT
 
-    total_limits = min(USERS_LIMIT_MAX, total_limits)
-    top_users = await scrapper.fetch_top_users(total_limits)
-    logging.info('fetch %d users by karma', len(top_users))  # noqa: WPS323
+    total_limits = min(settings.USERS_LIMIT_MAX, total_limits)
+    top_users = await storage.get_top(total_limits)
+    logging.info('fetch %d top users', len(top_users))  # noqa: WPS323
 
-    return html_templates.TemplateResponse('top.html', {
-        'request': request,
+    return html_templates.TemplateResponse(request, 'top.html', {
         'users': top_users,
         'limit': total_limits,
     })
@@ -40,8 +35,8 @@ async def top_users_html(request: Request):
 async def top_users_export(request: Request):
     logging.info('top users export request')
 
-    top_users = await scrapper.fetch_top_users(USERS_LIMIT_MAX)
-    logging.info('fetch %d users by karma', len(top_users))  # noqa: WPS323
+    top_users = await storage.get_top(settings.USERS_LIMIT_MAX)
+    logging.info('fetch %d top users', len(top_users))  # noqa: WPS323
 
     users_as_tsv: List[str] = [user_to_tsv(num, user) for num, user in enumerate(top_users)]
     return StreamingResponse(iter(users_as_tsv), media_type='text/plain')

@@ -30,7 +30,7 @@ def prepare_destination_host():
         run(f'mkdir -p {APP_PATH}')
 
     if not exists(VENV_PATH):
-        run(f'python3.8 -m venv {VENV_PATH}')
+        run(f'python3.9 -m venv {VENV_PATH}')
         run(f'{VENV_PATH}/bin/pip install --upgrade pip')
 
     if not exists(LOG_PATH):
@@ -66,5 +66,6 @@ def deployment():
         run('rm -rf %s' % BACKUP_PATH)
     run('mv %s %s' % (APP_PATH, BACKUP_PATH))
     run('mv %s %s' % (DEPLOY_PATH, APP_PATH))
+    run('crontab %s' % os.path.join(APP_PATH, 'etc', 'crontab.txt'))
     run('supervisorctl restart tinkoff')
 

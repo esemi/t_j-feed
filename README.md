@@ -10,22 +10,27 @@
 ### install
 
 ```bash
-$ git clone PATH
+git clone PATH
 
-$ cd t_j_feed
-$ python3.9 -m venv venv
-$ source venv/bin/activate
-$ pip install -r requirements/dev.txt
+cd t_j_feed
+python3.9 -m venv venv
+source venv/bin/activate
+pip install -r requirements/dev.txt
 ```
 
 ### run tests
 ```bash
-$ pytest --cov=tj_feed tests
-$ mypy --ignore-missing-imports tj_feed/
-$ flake8 tj_feed
+pytest --cov=tj_feed tests
+mypy --ignore-missing-imports tj_feed/
+flake8 tj_feed
 ```
 
 ### run webapp
 ```bash
-$ gunicorn -k uvicorn.workers.UvicornH11Worker -w 1 tj_feed.app:webapp
+gunicorn -k uvicorn.workers.UvicornH11Worker -w 1 tj_feed.app:webapp
+```
+
+### run worker
+```bash
+python -m tj_feed.worker
 ```
