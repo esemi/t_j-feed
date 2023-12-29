@@ -1,4 +1,5 @@
 """Storage."""
+import datetime
 import operator
 from dataclasses import asdict
 from typing import List
@@ -15,6 +16,7 @@ db_pool: aioredis.client.Redis = aioredis.from_url(
 )
 
 TOP_LIST_KEY = 'tinkoff:top'
+TOP_UPDATED_AT = 'tinkoff:updated_at'
 USER_KEY = 'tinkoff:user:{0}'
 
 
@@ -26,6 +28,11 @@ async def update_top(users: List[User]) -> None:
 
     await db_pool.delete(TOP_LIST_KEY)
     await db_pool.sadd(TOP_LIST_KEY, *user_ids)
+    await db_pool.set(TOP_UPDATED_AT, datetime.datetime.utcnow().isoformat())
+
+
+async def get_updated_at() -> str:
+    return (await db_pool.get(TOP_UPDATED_AT)) or ''
 
 
 async def get_top(limit: int) -> List[User]:
@@ -46,6 +53,7 @@ async def get_top(limit: int) -> List[User]:
             karma=int(user_raw['karma']),
             karma_by_comments=int(user_raw['karma_by_comments']),
             name=user_raw['name'],
+            ban=user_raw.get('ban', ''),
         )
         all_users.append(user)
 

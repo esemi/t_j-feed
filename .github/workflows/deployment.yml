@@ -17,9 +17,6 @@ jobs:
 
     - name: Deploy
       run: |
-        sed -i "s|%USERNAME%|${{secrets.SSH_USER}}|" etc/supervisor.conf
-        sed -i "s|%USERNAME%|${{secrets.SSH_USER}}|" etc/crontab.txt
-
         pip install Fabric3
         fab -H ${{secrets.DESTINATION_HOST}} -u ${{secrets.SSH_USER}} -p ${{secrets.SSH_PASS}} prepare_destination_host
         fab -H ${{secrets.DESTINATION_HOST}} -u ${{secrets.SSH_USER}} -p ${{secrets.SSH_PASS}} deployment

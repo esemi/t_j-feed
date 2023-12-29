@@ -59,6 +59,7 @@
 </head>
 <body>
     <h1>Т_Ж: Рейтинг пользователей <span>(TOP {{ limit }})</span></h1>
+    <h5>Обновлено: {{ updated_at }}</h5>
     <a href="{{ url_for('user rating export') }}">summary in tsv format</a><br/>
     <table class="table_custom">
         <tr>
@@ -68,6 +69,7 @@
             <th>Avg comment rating </th>
             <th>Comments</th>
             <th>Badges</th>
+            <th>Ban</th>
         </tr>
         {% for item in users %}
         <tr>
@@ -78,6 +80,7 @@
             <th>{{ "%10.4f"|format(item.avg_rating_per_comment) }}</th>
             <th>{{ item.comments_count }}</th>
             <th>{{ item.badges }}</th>
+            <th>{{ item.ban }}</th>
         </tr>
         {% endfor %}
     </table>

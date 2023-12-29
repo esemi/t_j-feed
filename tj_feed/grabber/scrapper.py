@@ -32,6 +32,7 @@ async def fetch_top_users(total_limit: int) -> List[User]:
         ]
         parsed_users.append(chain.from_iterable(await asyncio.gather(*tasks)))
         del tasks
+        await asyncio.sleep(settings.DELAY)
 
     all_users: List[User] = list(chain.from_iterable(parsed_users))
     all_users.sort(key=operator.attrgetter('karma'), reverse=True)
