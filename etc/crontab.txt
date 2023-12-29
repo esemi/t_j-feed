@@ -1,3 +1,3 @@
-HOME=/home/%USERNAME%/current
+HOME=/home/tinkoff/current
 
-00  */6 *   *   *   /home/%USERNAME%/venv/bin/python -m tj_feed.worker
+00  */6   *   *   *   /home/tinkoff/venv/bin/python -m tj_feed.worker >> /home/tinkoff/logs/worker.log 2>&1

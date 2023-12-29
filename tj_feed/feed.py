@@ -24,11 +24,13 @@ async def top_users_html(request: Request):
 
     total_limits = min(settings.USERS_LIMIT_MAX, total_limits)
     top_users = await storage.get_top(total_limits)
+    updated_at = await storage.get_updated_at()
     logging.info('fetch %d top users', len(top_users))  # noqa: WPS323
 
     return html_templates.TemplateResponse(request, 'top.html', {
         'users': top_users,
         'limit': total_limits,
+        'updated_at': updated_at,
     })
 
 
@@ -50,5 +52,6 @@ def user_to_tsv(num: int, user: User) -> str:
         user.comments_count,
         user.avg_rating_per_comment,
         user.badges,
+        user.ban,
         '\n',
     ]))

@@ -17,6 +17,7 @@ class User(TypedJsonMixin):
     karma: int
     karma_by_comments: int
     name: str
+    ban: str
 
     @property
     def avg_rating_per_comment(self) -> float:
@@ -41,14 +42,17 @@ def unicode_normalize(source: str) -> str:
 
 
 def parse_user(user: dict) -> User:
-    badge = user.get('badge', {})
-    karma = user.get('karma', 0)
+    badge = user.get('badge', {}) or {}
+    ban = user.get('ban', {}) or {}
+    karma = user.get('karma', 0) or 0
+    karma_by_comments = user.get('karma_actions', {}) or {}
     return User(
         user_id=int(user.get('id', 0)),
         badges=str(badge.get('text', '')) if badge else '',
         comments_count=int(user.get('comments_shown_count', 0)),
         image=user.get('image') if user.get('image') else DEFAULT_AVATAR,
         karma=karma,
-        karma_by_comments=user.get('karma_actions', {}).get('comments', karma),
+        karma_by_comments=karma_by_comments.get('comments', karma) or 0,
         name=unicode_normalize(str(user.get('name', 'unknown'))),
+        ban=ban.get('started_at', '') if ban else '',
     )
