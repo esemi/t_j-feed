@@ -1,4 +1,4 @@
-starlette==0.31.0
+starlette==0.36.2
 uvicorn==0.23.2
 gunicorn==21.2.0
 aiohttp[speedups]==3.8.5
